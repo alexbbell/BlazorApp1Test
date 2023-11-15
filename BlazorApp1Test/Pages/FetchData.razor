@@ -1,0 +1,73 @@
+﻿@page "/fetchdata"
+
+<PageTitle>Weather forecast</PageTitle>
+
+@using BlazorApp1Test.Data
+@inject WeatherForecastService ForecastService
+
+<h1>Weather forecast</h1>
+
+<p>This component demonstrates fetching data from a service.</p>
+
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th @onclick="SortDate">Date   
+                    @if (@sortbyDesc)
+                    {
+                        <label>	&darr;</label>
+                    } 
+                    else {
+                        <label>	&uarr;</label>
+                    } 
+
+                        </th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private WeatherForecast[]? forecasts;
+    private string sortStatus;
+    private bool sortbyDesc = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        forecasts = await ForecastService.GetForecastAsync(DateTime.Now);
+    }
+
+    private void SortDate()
+    {
+        sortStatus = "Sort by order";
+        if(sortbyDesc) {
+            forecasts = forecasts.OrderByDescending(x => x.Date).ToArray();
+        }
+        else
+        {
+            forecasts = forecasts.OrderBy(x => x.Date).ToArray();
+        }
+        sortbyDesc = !sortbyDesc;
+    }
+}
